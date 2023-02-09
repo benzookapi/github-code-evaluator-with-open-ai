@@ -1,10 +1,19 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="UTF-8">
-  <title>GitHub Code Evaluator by OpenAI</title>  
+  <title>GitHub Code Evaluator by OpenAI</title>
 </head>
+
 <body>
+  <form action="search" method="GET">
+    <input name="q" value="<%=q%>">
+    <input type="submit">
+  </form>
+
+  <pre><%= res %></pre>
 
 </body>
+
 </html>

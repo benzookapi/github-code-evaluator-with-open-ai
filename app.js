@@ -23,7 +23,7 @@ const app = module.exports = new Koa();
 app.use(bodyParser());
 
 app.use(koaRequest({
-  
+
 }));
 
 app.use(views(__dirname + '/views', {
@@ -34,6 +34,10 @@ app.use(views(__dirname + '/views', {
 
 app.use(serve(__dirname + '/public'));
 
+const GITHUB_CLIENT_ID = `${process.env.GITHUB_CLIENT_ID}`;
+const GITHUB_CLIENT_SECRET = `${process.env.GITHUB_CLIENT_SECRET}`;
+
+
 // Mongo URL and DB name for date store
 //const MONGO_URL = `${process.env.MY_MONGO_URL}`;
 //const MONGO_DB_NAME = `${process.env.MY_MONGO_DB_NAME}`;
@@ -42,57 +46,79 @@ app.use(serve(__dirname + '/public'));
 //const SEARCH_URL = 'https://www.google.com/search';
 //const MAX_COUNT = parseInt(`${process.env.MY_MAX_COUNT}`);
 
-router.get('/',  async (ctx, next) => {  
+router.get('/', async (ctx, next) => {
   console.log("+++++++++ / ++++++++++");
-
-
-
   await ctx.render('top', {
-    
-  });  
+    "q": '',
+    "res": ''
+  });
 });
 
-router.post('/',  async (ctx, next) => {  
-  console.log("+++++++++ / ++++++++++");
+router.get('/search', async (ctx, next) => {
+  console.log("+++++++++ /search ++++++++++");
+  console.log(`query ${JSON.stringify(ctx.request.query)}`);
 
+  const q = ctx.request.query.q;
 
+  const u = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=https://${ctx.request.host}/callback%3Fq%3D${q}`;
 
-  
+  console.log(`Redirecting... ${u}`);
 
-  await ctx.render('top', {
-   
-  });
-  
+  ctx.redirect(u);
+
 });
 
-/* ---  HTTP access common function--- */
-const accessEndpoint = function (ctx, endpoint, req, token = null, content_type = CONTENT_TYPE_JSON) {
-  console.log(`[ accessEndpoint ] POST ${endpoint} ${JSON.stringify(req)}`);
-  return new Promise(function (resolve, reject) {
-    // Success callback
-    let then_func = function (res) {
-      console.log(`[ accessEndpoint ] Success: POST ${endpoint} ${res}`);
-      return resolve(JSON.parse(res));
-    };
-    // Failure callback
-    let catch_func = function (e) {
-      console.log(`[ accessEndpoint ] Failure: POST ${endpoint} ${e}`);
-      return reject(e);
-    };
-    let headers = {};
-    headers['Content-Type'] = content_type;
-    if (token != null) {
-      headers['X-Shopify-Access-Token'] = token;
-      // NOTE THAT currently the following three headers are neccessary for Payment App API calls as of late 2021 unlike Admin APIs.
-      headers['Content-Length'] = Buffer.byteLength(JSON.stringify(req));
-      headers['User-Agent'] = 'My_Payments_App';
-      headers['Host'] = endpoint.split('/')[2];
-    }
-    console.log(`[ accessEndpoint ] ${JSON.stringify(headers)}`);
-    ctx.post(endpoint, req, headers).then(then_func).catch(catch_func);
-  });
-};
+router.get('/callback', async (ctx, next) => {
+  console.log("+++++++++ /callback ++++++++++");
+  console.log(`${JSON.stringify(ctx.request.query)}`);
 
+  const code = ctx.request.query.code;
+
+  const q = ctx.request.query.q;
+
+  let res = {};
+  try {
+    res = await ctx.post(`https://github.com/login/oauth/access_token`, {
+      "client_id": GITHUB_CLIENT_ID,
+      "client_secret": GITHUB_CLIENT_SECRET,
+      "code": code
+    }, {
+      "Accept": 'application/json'
+    });
+  } catch (e) {
+    console.log(`${JSON.stringify(e)}`);
+  }
+
+  res = JSON.parse(res);
+
+  console.log(`${JSON.stringify(res, null, 4)}`);
+
+  const access_token = res.access_token;
+
+  console.log(`access_token: ${access_token}`);
+
+  res = {};
+  try {
+    res = await ctx.get('https://api.github.com/search/repositories', {
+      "q": `${q.replace(/ /g, '+')}`
+    }, {
+      "User-Agent": 'MyTestApp1',
+      "Accept": 'application/vnd.github+json',
+      "Authorization": `Bearer ${access_token}`,
+      "X-GitHub-Api-Version": "2022-11-28"
+    });
+  } catch (e) {
+    console.log(`${e}  ${JSON.stringify(e)}`);
+  }
+
+  res = JSON.parse(res);
+
+  await ctx.render('top', {
+    "q": q,
+    "res": JSON.stringify(res, null, 4)
+  });
+
+});
 
 
 /*
