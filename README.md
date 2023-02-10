@@ -26,4 +26,10 @@ export MY_MONGO_URL=YOUR_MONGO_DB_URL (e.g. mongodb://my_db_id:my_db_password@my
 
 5. access YOUR_PUBLIC_URL (e.g. https://********.jp.ngrok.io)
 
+## Next Step
+
+- Add OpenAI model tuning 
+- Add Google search
+
+
 
