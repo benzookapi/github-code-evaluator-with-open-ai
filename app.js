@@ -138,7 +138,11 @@ const evaluate = async (ctx, items, sentence, tag) => {
       console.log(`${JSON.stringify(r, null, 4)}`);
       insertDB(tag, {
         "repository": `${i.html_url}`,
-        "answer": `${r.choices[0].text.replace(/\n/g, '')}`
+        "stars": i.stargazers_count,
+        "watchers": i.watchers_count,
+        "forks": i.forks_count,
+        "score": i.score,
+        "openAI_comment": `${r.choices[0].text.replace(/\n/g, '')}`
       });
     } catch (e) {
       console.log(`${e}`);
@@ -151,10 +155,10 @@ router.get('/refresh', async (ctx, next) => {
   const tag = ctx.request.query.tag;
   let count = 0;
   if (tag != '') {
-    const res = await (findDB(tag));  
+    const res = await (findDB(tag));
     count = res.length;
   }
-  
+
   ctx.set('Content-Type', 'application/json');
   ctx.body = {
     "count": count
@@ -167,9 +171,9 @@ router.get('/csv', async (ctx, next) => {
 
   const res = await (findDB(tag));
   let csv = "";
-  csv = (`repository,answer\n`);
+  csv = (`repository,stars,watchers,forks,score,openAI_comment\n`);
   for (const r of res) {
-    csv = csv + `"${r.data.repository}","${r.data.answer}"\n`;
+    csv = csv + `"${r.data.repository}",${r.data.stars}",${r.data.watchers}",${r.data.forks}",${r.data.score}","${r.data.openAI_comment}"\n`;
   }
 
   ctx.set('Content-Type', 'text/plain');

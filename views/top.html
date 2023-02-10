@@ -65,7 +65,7 @@
           const total = parseInt(document.getElementById('total').innerText);
           console.log(`count ${count} total ${total}`);
           if (count >= total) {
-            document.getElementById('result').setAttribute('style', 'visibility: visible; font-size: medium;');
+            document.getElementById('result').setAttribute('style', 'visibility: visible; font-size: medium; background-color: green;');
           }
         }
       };
@@ -90,7 +90,7 @@
       xhttp.send();
     };
 
-    refresh();
+    setInterval(refresh, 1000);    
 
   </script>
 </body>
