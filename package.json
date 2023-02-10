@@ -1,21 +1,16 @@
 {
-  "name": "github-code-evaluator-by-open-ai",
+  "name": "github-code-evaluator-with-open-ai",
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
   "dependencies": {
-    "cheerio": "^0.22.0",
-    "co": "^4.6.0",
     "koa": "^2.7.0",
     "koa-bodyparser": "^4.2.1",
     "koa-http-request": "^2.2.1",
     "koa-router": "^7.4.0",
     "koa-static": "^5.0.0",
     "koa-views": "^5.0.0",
-    "mongodb": "^3.4.1",
-    "openai": "^3.1.0",
-    "shopify-buy": "^2.10.0",
-    "underscore": "^1.9.0"
+    "mongodb": "^3.4.1"
   },
   "scripts": {
     "start": "node app.js",

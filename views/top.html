@@ -7,13 +7,92 @@
 </head>
 
 <body>
-  <form action="search" method="GET">
-    <input name="q" value="<%=q%>">
-    <input type="submit">
-  </form>
+  <div style="margin:0 auto;">
+    <pre style="padding: 0 0 0 30%;">
+      <h1>GitHub Code Evaluator with OpenAI</h1>
+      Search <a href="https://docs.github.com/en/rest/search#search-repositories" target="_blank">GitHub</a> for source code repositories hit by the query above and 
+      evaluate them by <a href="https://platform.openai.com/docs/api-reference/completions/" target="_blank">Open AI Completion Chat</a>. You can download the result as a CSV.
+    </pre>
+    <form action="search" method="GET">
 
-  <pre><%= res %></pre>
+      <div style="width:30%; text-align: right; margin-bottom: 1%; float:left;">
+        <label for="query">Query:</label>
+      </div>
 
+      <div style="margin-bottom: 1%;">
+        <input type="text" value="<%= q %>" name="q" style="width:40%; font-size: medium;" />
+      </div>
+      <div style="width:30%; text-align: right; margin-bottom: 1%; float:left;">
+        <label for="query">Sentence:</label>
+      </div>
+      <div style="margin-bottom: 1%;">
+        <input type="text" value="<%= sentence %>" name="sentence" style="width:60%; font-size: medium;" />
+      </div>
+      <div style="text-align: center;">
+        <input type="submit" value="Evaluate the repositories" style="font-size: large; background-color: gray;" />
+      </div>
+    </form>
+
+    <% if (tag !='' ) {%>
+      <br />
+      <br />
+      <div style="text-align: center;">
+        <pre>Processed: <span id="count">0</span> / Total count: <span id="total"><%= total_count %></span></pre>
+        <input type="button" value="refresh" onclick="refresh();" />
+      </div>
+      <br />
+      <br />
+      <div style="text-align: center;">
+        <input type="button" value="download the result" onclick="download_csv();" id="result"
+          style="visibility: hidden;" />
+        <br />
+        <br />
+        <a href="/">Try again</a>
+      </div>
+      <% } %>
+
+  </div>
+  <script>
+    const refresh = function () {
+      const xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+          const r = JSON.parse(xhttp.responseText);
+          console.log(`${JSON.stringify(r)}`);
+          const element = document.getElementById('count');
+          const count = parseInt(r.count);
+          element.innerHTML = `${count}`;
+          const total = parseInt(document.getElementById('total').innerText);
+          console.log(`count ${count} total ${total}`);
+          if (count >= total) {
+            document.getElementById('result').setAttribute('style', 'visibility: visible; font-size: medium;');
+          }
+        }
+      };
+      xhttp.open("GET", "/refresh?tag=<%= tag %>", true);
+      xhttp.send();
+    };
+
+    const download_csv = function () {
+      const xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+          const element = document.createElement('a');
+          element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(xhttp.responseText));
+          element.setAttribute('download', 'evaluation_result_<%= tag %>.csv');
+          element.style.display = 'none';
+          document.body.appendChild(element);
+          element.click();
+          document.body.removeChild(element);
+        }
+      };
+      xhttp.open("GET", "/csv?tag=<%= tag %>", true);
+      xhttp.send();
+    };
+
+    refresh();
+
+  </script>
 </body>
 
 </html>
