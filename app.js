@@ -31,7 +31,8 @@ const GITHUB_CLIENT_SECRET = `${process.env.MY_GITHUB_CLIENT_SECRET}`;
 const GITHUB_API_VERSION = `${process.env.MY_GITHUB_API_VERSION}`;
 const GITHUB_MAX_COUNT = parseInt(`${process.env.MY_GITHUB_MAX_COUNT}`);
 
-// Mongo URL and DB name for date store
+const OPENAI_API_KEY = `${process.env.MY_OPENAI_API_KEY}`;
+
 const MONGO_URL = `${process.env.MY_MONGO_URL}`;
 const MONGO_DB_NAME = `${process.env.MY_MONGO_DB_NAME}`;
 const MONGO_COLLECTION = 'github_code_evaluator_by_open_ai';
@@ -83,7 +84,8 @@ router.get('/result', async (ctx, next) => {
     res = await ctx.get('https://api.github.com/search/repositories', {
       "q": `${q.replace(/ /g, '+')}`,
       "sort": "stars",
-      "order": "desc"
+      "order": "desc",
+      "per_page": GITHUB_MAX_COUNT
     }, {
       "User-Agent": 'MyTestApp1',
       "Accept": 'application/vnd.github+json',
@@ -132,7 +134,7 @@ const evaluate = async (ctx, items, sentence, tag) => {
         "presence_penalty": 0.6,
         "stop": [" Human:", " AI:"]
       }, {
-        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
+        "Authorization": `Bearer ${OPENAI_API_KEY}`,
         "Content-Type": 'application/json'
       }));
       console.log(`${JSON.stringify(r, null, 4)}`);
