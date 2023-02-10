@@ -173,7 +173,7 @@ router.get('/csv', async (ctx, next) => {
 
   const res = await (findDB(tag));
   let csv = "";
-  csv = (`"repository","stars","watchers","forks","score","penAI_comment"\n`);
+  csv = (`"repository","stars","watchers","forks","score","OpenAI_comment"\n`);
   for (const r of res) {
     csv = csv + `"${r.data.repository}","${r.data.stars}","${r.data.watchers}","${r.data.forks}","${r.data.score}","${r.data.openAI_comment}"\n`;
   }
