@@ -37,7 +37,10 @@
       <br />
       <br />
       <div style="text-align: center;">
-        <pre>Processed: <span id="count">0</span> / Total count: <span id="total"><%= total_count %></span></pre>
+        <pre>
+          <span id="msg">Now processing... Wait a moment.</span> 
+          Processed: <span id="count">0</span> / Total count: <span id="total"><%= total_count %></span>           
+        </pre>
         <input type="button" value="refresh" onclick="refresh();" />
       </div>
       <br />
@@ -61,10 +64,11 @@
           console.log(`${JSON.stringify(r)}`);
           const element = document.getElementById('count');
           const count = parseInt(r.count);
-          element.innerHTML = `${count}`;
+          element.innerText = `${count}`;
           const total = parseInt(document.getElementById('total').innerText);
           console.log(`count ${count} total ${total}`);
           if (count >= total) {
+            document.getElementById('msg').innerText = 'Completed!';
             document.getElementById('result').setAttribute('style', 'visibility: visible; font-size: medium; background-color: green;');
           }
         }
@@ -90,7 +94,7 @@
       xhttp.send();
     };
 
-    setInterval(refresh, 5000);    
+    setInterval(refresh, 5000);
 
   </script>
 </body>

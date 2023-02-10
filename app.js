@@ -144,7 +144,7 @@ const evaluate = async (ctx, items, sentence, tag) => {
         "watchers": i.watchers_count,
         "forks": i.forks_count,
         "score": i.score,
-        "openAI_comment": `${r.choices[0].text.replace(/\n/g, '')}`
+        "openAI_comment": `${r.choices[0].text.replace(/.*\nAI: /, '').replace(/\n/g, '')}`
       });
     } catch (e) {
       console.log(`${e}`);
@@ -173,9 +173,9 @@ router.get('/csv', async (ctx, next) => {
 
   const res = await (findDB(tag));
   let csv = "";
-  csv = (`repository,stars,watchers,forks,score,openAI_comment\n`);
+  csv = (`"repository","stars","watchers","forks","score","penAI_comment"\n`);
   for (const r of res) {
-    csv = csv + `"${r.data.repository}",${r.data.stars}",${r.data.watchers}",${r.data.forks}",${r.data.score}","${r.data.openAI_comment}"\n`;
+    csv = csv + `"${r.data.repository}","${r.data.stars}","${r.data.watchers}","${r.data.forks}","${r.data.score}","${r.data.openAI_comment}"\n`;
   }
 
   ctx.set('Content-Type', 'text/plain');
